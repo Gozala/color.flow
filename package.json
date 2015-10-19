@@ -1,0 +1,44 @@
+{
+  "name": "color-structure",
+  "version": "0.0.1",
+  "description": "Library for working with colors. Includes RGB and HSL creation, gradients, and built-in names.",
+  "keywords": [
+    "RGB",
+    "HSLA",
+    "color",
+    "gradients",
+    "flow",
+    "elm"
+  ],
+  "author": "Irakli Gozalishvili <rfobic@gmail.com> (http://jeditoolkit.com)",
+  "homepage": "https://github.com/Gozala/color-structure",
+  "devDependencies": {
+    "babel": "5.8.23",
+    "babel-plugin-flow-comments": "1.0.9",
+    "flow-bin": "0.17.0"
+  },
+  "babel": {
+    "sourceMaps": "inline"
+  },
+  "scripts": {
+    "test": "flow check",
+    "build-node": "babel ./src --out-dir ./lib --plugins flow-comments --blacklist flow",
+    "build-browser": "babel ./src --out-dir ./dist --modules umdStrict",
+    "build": "npm run build-node && npm run build-browser",
+    "prepublish": "npm run build && npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Gozala/color-structure.git",
+    "web": "https://github.com/Gozala/color-structure"
+  },
+  "bugs": {
+    "url": "https://github.com/Gozala/color-structure/issues/"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/Gozala/color-structure/License.md"
+    }
+  ]
+}
