@@ -12,6 +12,7 @@
   ],
   "author": "Irakli Gozalishvili <rfobic@gmail.com> (http://jeditoolkit.com)",
   "homepage": "https://github.com/Gozala/color-structure",
+  "main": "./lib/index.js",
   "devDependencies": {
     "babel": "5.8.23",
     "babel-plugin-flow-comments": "1.0.9",
