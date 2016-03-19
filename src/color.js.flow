@@ -1,0 +1,114 @@
+/* @flow */
+
+import type {Int, Float} from "./core"
+
+export type RGBA =
+  { red: Int
+  , green: Int
+  , blue: Int
+  , alpha: Float
+  }
+
+export type HSLA =
+  { hue: Float
+  , saturation: Float
+  , lightness: Float
+  , alpha: Float
+  }
+
+export type Color
+  = RGBA
+  | HSLA
+
+
+// ## Creation
+
+// Create RGB colors from numbers between 0 and 255 inclusive.
+declare export function rgb
+  (red:Int, green:Int, blue:Int): RGBA
+
+
+// Create RGB colors with an alpha component for transparency.
+// The alpha component is specified with numbers between 0 and 1.
+declare export function rgba
+  (red:Int, green:Int, blue:Int, alpha:Float):
+  RGBA
+
+
+// Create [HSL colors](http://en.wikipedia.org/wiki/HSL_and_HSV)
+// with an alpha component for transparency. This gives you access to colors
+// more like a color wheel, where all hues are aranged in a circle that you
+// specify with angles (radians).
+//
+// red = hsl(degrees(0), 1, 0.5)
+// green = hsl(degrees(120), 1, 0.5)
+// blue  = hsl(degrees(240), 1, 0.5)
+//
+// pastelRed = hsl(degrees(0), 0.7, 0.7)
+//
+// To cycle through all colors, just cycle through degrees. The saturation
+// level is how vibrant the color is, like a dial between grey and bright
+// colors. The lightness level is a dial between white and black.
+declare export function hsl
+  (hue:Float, saturation:Float, lightness:Float):
+  HSLA
+
+// Create [HSL colors](http://en.wikipedia.org/wiki/HSL_and_HSV)
+// with an alpha component for transparency.
+declare export function hsla
+  (hue:Float, saturation:Float, lightness:Float, alpha:Float):
+  HSLA
+
+// Produce a gray based on the input. 0 is white, 1 is black.
+declare export function grayscale
+  (value:Float):
+  Color
+
+// Produce a "complementary color". The two colors will
+// accent each other. This is the same as rotating the hue by 180&deg;
+declare export function complement
+  (color:Color):
+  Color
+
+// ## Extracting Colors
+
+// Extract the components of a color in the RGB format.
+declare export function toRGB
+  (color:Color):
+  RGBA
+
+// Extract the components of a color in the HSL format.
+declare export function toHSL
+  (color:Color):
+  HSLA
+
+
+declare export var lightRed:Color
+declare export var red:Color
+declare export var darkRed:Color
+declare export var lightOrange:Color
+declare export var orange:Color
+declare export var darkOrange:Color
+declare export var lightYellow:Color
+declare export var yellow:Color
+declare export var darkYellow:Color
+declare export var lightGreen:Color
+declare export var green:Color
+declare export var darkGreen:Color
+declare export var lightBlue:Color
+declare export var blue:Color
+declare export var darkBlue:Color
+declare export var lightPurple:Color
+declare export var purple:Color
+declare export var darkPurple:Color
+declare export var lightBrown:Color
+declare export var brown:Color
+declare export var darkBrown:Color
+declare export var black:Color
+declare export var white:Color
+declare export var lightGrey:Color
+declare export var grey:Color
+declare export var darkGrey:Color
+declare export var lightCharcoal:Color
+declare export var charcoal:Color
+declare export var darkCharcoal:Color

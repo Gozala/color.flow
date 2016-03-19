@@ -1,6 +1,6 @@
 {
-  "name": "color-structure",
-  "version": "0.0.1",
+  "name": "value-color",
+  "version": "0.1.0",
   "description": "Library for working with colors. Includes RGB and HSL creation, gradients, and built-in names.",
   "keywords": [
     "RGB",
@@ -11,35 +11,40 @@
     "elm"
   ],
   "author": "Irakli Gozalishvili <rfobic@gmail.com> (http://jeditoolkit.com)",
-  "homepage": "https://github.com/Gozala/color-structure",
+  "homepage": "https://github.com/Gozala/value-color",
   "main": "./lib/index.js",
   "devDependencies": {
-    "babel": "5.8.23",
-    "babel-plugin-flow-comments": "1.0.9",
-    "flow-bin": "0.17.0"
-  },
-  "babel": {
-    "sourceMaps": "inline"
+    "babel-cli": "6.6.5",
+    "babel-plugin-remove-comments": "2.0.0",
+    "babel-plugin-syntax-flow": "6.3.13",
+    "babel-plugin-transform-es2015-modules-umd": "6.4.3",
+    "babel-plugin-transform-flow-strip-types": "6.4.0",
+    "babel-preset-es2015": "6.3.13",
+    "babel-register": "6.4.3",
+    "flow-bin": "0.22.1",
+    "tap": "1.1.0",
+    "tape": "4.4.0"
   },
   "scripts": {
-    "test": "flow check",
-    "build-node": "babel ./src --out-dir ./lib --plugins flow-comments --blacklist flow",
-    "build-browser": "babel ./src --out-dir ./dist --modules umdStrict",
+    "test": "npm run flow && npm run tape",
+    "tape": "tape -r babel-register test/**/*.js",
+    "flow": "flow check",
+    "start": "babel --watch --out-dir ./lib ./src",
+    "build-node": "babel --out-dir ./lib ./src && cp ./src/*.flow ./lib",
+    "build-browser": "mkdir -p dist && babel --out-file ./dist/result.js --plugins 'transform-es2015-modules-umd' ./src",
     "build": "npm run build-node && npm run build-browser",
-    "prepublish": "npm run build && npm run test"
+    "prepublish": "npm run build && npm run flow"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Gozala/color-structure.git",
-    "web": "https://github.com/Gozala/color-structure"
+    "url": "https://github.com/Gozala/value-color.git",
+    "web": "https://github.com/Gozala/value-color"
   },
   "bugs": {
-    "url": "https://github.com/Gozala/color-structure/issues/"
+    "url": "https://github.com/Gozala/value-color/issues/"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/Gozala/color-structure/License.md"
-    }
-  ]
+  "license": "MIT",
+  "dependencies": {
+    "outthrow": "0.0.1"
+  }
 }

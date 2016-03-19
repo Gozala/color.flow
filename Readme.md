@@ -1,4 +1,4 @@
-# color-structure
+# color-value
 
 Library for working with colors. Includes [RGB][] and [HSL][] creation, gradients, and built-in color values.
 

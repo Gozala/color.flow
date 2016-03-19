@@ -1,15 +1,17 @@
 /* @flow */
 
 import {turns, degrees} from "./angle"
+import panic from "outthrow"
+
+
 /*::
-import type {Int, Float} from "../type/core"
-import * as type from "../type/color"
+import type {Int, Float} from "./core"
+import type {Color, RGBA, HSLA} from "./color"
 */
 
 
-class RGBA {
+class RGBAColor {
   /*::
-  type: "Color.RGBA";
   red: Int;
   green: Int;
   blue: Int;
@@ -21,13 +23,39 @@ class RGBA {
     this.blue = blue
     this.alpha = alpha
   }
+  static toHSLA ({red, green, blue, alpha}/*:RGBA*/)/*:HSLA*/ {
+    const [r, g, b] = [red/255, green/255, blue/255]
+    const max = Math.max(Math.max(r, g), b)
+    const min = Math.min(Math.min(r, g), b)
+    const delta = max - min
+
+    const h = max === r ? fmod(((g - b) / delta), 6) :
+              max === g ? (((b - r) / delta) + 2) :
+              ((r - g) / delta) + 4
+    const hue = degrees(60) * h
+
+    const lightness = (max + min) / 2
+    const saturation = lightness === 0 ? 0 :
+                       delta / (1 - Math.abs(2 * lightness - 1))
+
+    return new HSLAColor(hue, lightness, saturation, alpha)
+  }
 }
-RGBA.prototype.type = "Color.RGBA"
+const isRGBA =
+  value =>
+  ( value instanceof RGBAColor
+  ? true
+  : ( value != null &&
+      typeof(value.red) === "number" &&
+      typeof(value.green) === "number" &&
+      typeof(value.blue) === "number" &&
+      typeof(value.alpha) === "number"
+    )
+  )
 
 
-class HSLA {
+class HSLAColor {
   /*::
-  type: "Color.HSLA";
   hue: Float;
   saturation: Float;
   lightness: Float;
@@ -39,23 +67,96 @@ class HSLA {
     this.lightness = lightness
     this.alpha = alpha
   }
+  static complement({hue, saturation, lightness, alpha}/*:HSLA*/)/*:HSLA*/ {
+    return new HSLAColor
+    ( hue + degrees(180)
+    , saturation
+    , lightness
+    , alpha
+    )
+  }
+  static toRGBA({hue, saturation, lightness, alpha}/*:HSLA*/)/*:RGBA*/ {
+    const chroma = (1 - Math.abs(2 * lightness - 1)) * saturation
+    const h = hue / degrees(60)
+    const x = chroma * (1 - Math.abs(fmod(h, 2 - 1)))
+
+    const [r, g, b] = h < 0 ? [0, 0, 0] :
+                      h < 1 ? [chroma, x, 0] :
+                      h < 2 ? [x, chroma, 0] :
+                      h < 3 ? [0, chroma, x] :
+                      h < 4 ? [0, x, chroma] :
+                      h < 5 ? [x, 0, chroma] :
+                      h < 6 ? [chroma, 0, x] :
+                      [0, 0, 0]
+
+    const m = lightness - chroma / 2
+
+    const color = new RGBAColor
+    ( Math.round(255 * (r + m))
+    , Math.round(255 * (g + m))
+    , Math.round(255 * (b + m))
+    , alpha
+    )
+
+    return color
+  }
 }
-HSLA.prototype.type = "Color.HSLA"
+
+const isHSLA =
+  value =>
+  ( value instanceof HSLAColor
+  ? true
+  : ( value != null &&
+      typeof(value.hue) === "number" &&
+      typeof(value.saturation) === "number" &&
+      typeof(value.lightness) === "number" &&
+      typeof(value.alpha) === "number"
+    )
+  )
 
 // Create RGB colors with an alpha component for transparency.
 // The alpha component is specified with numbers between 0 and 1
-export const rgba/*:type.rgba*/ = (red, green, blue, alpha) =>
-  new RGBA(red, green, blue, alpha)
+export const rgba =
+  ( red/*:Int*/
+  , green/*:Int*/
+  , blue/*:Int*/
+  , alpha/*:Float*/
+  )/*:RGBA*/ =>
+  new RGBAColor
+  ( red
+  , green
+  , blue
+  , alpha
+  )
 
 
 // Create RGB colors from numbers between 0 and 255 inclusive
-export const rgb/*:type.rgb*/ = (red, green, blue) =>
-  new RGBA(red, green, blue, 1)
+export const rgb =
+  ( red/*:Int*/
+  , green/*:Int*/
+  , blue/*:Int*/
+  )/*:RGBA*/ =>
+  new RGBAColor
+  ( red
+  , green
+  , blue
+  , 1
+  )
 
 // Create [HSL colors](http://en.wikipedia.org/wiki/HSL_and_HSV)
 // with an alpha component for transparency.
-export const hsla/*:type.hsla*/ = (hue, saturation, lightness, alpha) =>
-  new HSLA(hue - turns(Math.floor(hue / (2 * Math.PI))), saturation, lightness, alpha)
+export const hsla =
+  ( hue/*:Float*/
+  , saturation/*:Float*/
+  , lightness/*:Float*/
+  , alpha/*:Float*/
+  )/*:HSLA*/ =>
+  new HSLAColor
+  ( hue - turns(Math.floor(hue / (2 * Math.PI)))
+  , saturation
+  , lightness
+  , alpha
+  )
 
 // Create [HSL colors](http://en.wikipedia.org/wiki/HSL_and_HSV). This gives
 // you access to colors more like a color wheel, where all hues are aranged in a
@@ -69,99 +170,84 @@ export const hsla/*:type.hsla*/ = (hue, saturation, lightness, alpha) =>
 // To cycle through all colors, just cycle through degrees. The saturation level
 // is how vibrant the color is, like a dial between grey and bright colors. The
 // lightness level is a dial between white and black.
-export const hsl/*:type.hsl*/ = (hue, saturation, lightness) =>
+export const hsl =
+  ( hue/*:Float*/
+  , saturation/*:Float*/
+  , lightness/*:Float*/
+  )/*:HSLA*/ =>
   hsla(hue, saturation, lightness, 1)
 
 // Produce a gray based on the input. 0 is white, 1 is black.
-export const grayscale/*:type.grayscale*/ = p => new HSLA(0, 0, 1 - p, 1)
+export const grayscale =
+  (value:Float)/*:Color*/ =>
+  new HSLAColor(0, 0, 1 - value, 1)
 
 // Produce a "complementary color". The two colors will
 // accent each other. This is the same as rotating the hue by 180&deg;
-export const complement/*:type.complement*/ = color => {
-  if (color.type === "Color.HSLA") {
-    return hsla(color.hue + degrees(180),
-                color.saturation,
-                color.lightness,
-                color.alpha)
-  }
+export const complement =
+  (color/*:Color*/)/*:Color*/ =>
+  HSLAColor.complement(toHSL(color))
 
-  if (color.type === "Color.RGBA") {
-    return complement(rgba2hsla(color))
-  }
-
-  throw TypeError("Unsupported color structure was passed")
-}
 
 // Convert given color into the HSL format.
-export const toHSL/*:type.toHSL*/ = color => {
-  if (color.type === "Color.HSLA") {
-    return color
-  }
-
-  if (color.type === "Color.RGBA") {
-    return rgba2hsla(color)
-  }
-
-  throw TypeError("Unsupported color structure was passed")
-}
+export const toHSL =
+  (color/*:Color*/)/*:HSLA*/ =>
+  ( color instanceof HSLAColor
+  ? color
+  : color instanceof RGBAColor
+  ? RGBAColor.toHSLA(color)
+  : ( color != null &&
+      typeof(color.hue) === "number" &&
+      typeof(color.saturation) === "number" &&
+      typeof(color.lightness) === "number" &&
+      typeof(color.alpha) === "number"
+    )
+  // @FlowIssue: Still not convinced we have all properties
+  ? (color/*:HSLA*/)
+  : ( color != null &&
+      typeof(color.red) === "number" &&
+      typeof(color.green) === "number" &&
+      typeof(color.blue) === "number" &&
+      typeof(color.alpha) === "number"
+    )
+  // @FlowIssue: Still not convinced we have all properties
+  ? RGBAColor.toHSLA((color/*:RGBA*/))
+  : panic(TypeError("Passed argument is not a valid color value"))
+  )
 
 // Convert given color into the RGB format.
-export const toRGB/*:type.toRGB*/ = color => {
-  if (color.type === "Color.RGBA") {
-    return color
+export const toRGB =
+  (color/*:Color*/)/*:RGBA*/ =>
+  ( color instanceof HSLAColor
+  ? HSLAColor.toRGBA(color)
+  : color instanceof RGBAColor
+  ? color
+  : ( color != null &&
+      typeof(color.hue) === "number" &&
+      typeof(color.saturation) === "number" &&
+      typeof(color.lightness) === "number" &&
+      typeof(color.alpha) === "number"
+    )
+  // @FlowIssue: Still not convinced we have all properties
+  ? HSLAColor.toRGBA((color/*:RGBA*/))
+  : ( color != null &&
+      typeof(color.red) === "number" &&
+      typeof(color.green) === "number" &&
+      typeof(color.blue) === "number" &&
+      typeof(color.alpha) === "number"
+    )
+  // @FlowIssue: Still not convinced we have all properties
+  ? (color/*:RGBA*/)
+  : panic(TypeError("Passed argument is not a valid color value"))
+  )
+
+const fmod =
+  (f/*:Float*/, n/*:Int*/)/*:Float*/ => {
+    const integer = Math.floor(f)
+    return integer % n + f - integer
   }
 
-  if (color.type === "Color.HSLA") {
-    return hsla2rgba(color)
-  }
 
-  throw TypeError("Unsupported color structure was passed")
-}
-
-const fmod = (f/*:Float*/, n/*:Int*/)/*:Float*/ => {
-  const integer = Math.floor(f)
-  return integer % n + f - integer
-}
-
-const rgba2hsla = ({red, green, blue, alpha}) => {
-  const [r, g, b] = [red/255, green/255, blue/255]
-  const max = Math.max(Math.max(r, g), b)
-  const min = Math.min(Math.min(r, g), b)
-  const delta = max - min
-
-  const h = max === r ? fmod(((g - b) / delta), 6) :
-            max === g ? (((b - r) / delta) + 2) :
-            ((r - g) / delta) + 4
-  const hue = degrees(60) * h
-
-  const lightness = (max + min) / 2
-  const saturation = lightness === 0 ? 0 :
-                     delta / (1 - Math.abs(2 * lightness - 1))
-
-  return new HSLA(hue, lightness, saturation, alpha)
-}
-
-const hsla2rgba = ({hue, saturation, lightness, alpha}) => {
-  const chroma = (1 - Math.abs(2 * lightness - 1)) * saturation
-  const h = hue / degrees(60)
-  const x = chroma * (1 - Math.abs(fmod(h, 2 - 1)))
-
-  const [r, g, b] = h < 0 ? [0, 0, 0] :
-                    h < 1 ? [chroma, x, 0] :
-                    h < 2 ? [x, chroma, 0] :
-                    h < 3 ? [0, chroma, x] :
-                    h < 4 ? [0, x, chroma] :
-                    h < 5 ? [x, 0, chroma] :
-                    h < 6 ? [chroma, 0, x] :
-                    [0, 0, 0]
-
-  const m = lightness - chroma / 2
-
-  return new RGBA(Math.round(255 * (r + m)),
-                  Math.round(255 * (g + m)),
-                  Math.round(255 * (b + m)),
-                  alpha)
-}
 
 
 // ## Built-in Colors

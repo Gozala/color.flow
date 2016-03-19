@@ -1,9 +1,7 @@
 /* @flow */
 
-/*::
 export type {Int, Float} from "./core"
 export type {Color, RGBA, HSLA} from "./color"
-*/
 
 export {turns, degrees} from "./angle"
 export
