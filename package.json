@@ -1,6 +1,6 @@
 {
   "name": "value-color",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Library for working with colors. Includes RGB and HSL creation, gradients, and built-in names.",
   "keywords": [
     "RGB",
