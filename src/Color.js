@@ -4,6 +4,9 @@ import crash from "throw.flow"
 import { turns, degrees } from "./Angle"
 import type { Int, Float } from "./Number"
 
+export type { Int, Float }
+export { turns, degrees }
+
 export interface RGBA {
   red: Int,
   green: Int,

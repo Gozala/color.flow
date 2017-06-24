@@ -1,4 +1,4 @@
-# color-value
+# color.flow
 
 Library for working with colors. Includes [RGB][] and [HSL][] creation, gradients, and built-in color values.
 
