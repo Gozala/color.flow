@@ -30,9 +30,7 @@ interface Match<a> {
   _: () => a
 }
 
-export const match = <a>(match: Match<a>): ((value: mixed) => a) => (
-  value: mixed
-): a => {
+export const match = <a>(match: Match<a>): ((value: mixed) => a) => value => {
   if (value instanceof HSLAColor) {
     return match.HSLA(value)
   } else if (value instanceof RGBAColor) {
